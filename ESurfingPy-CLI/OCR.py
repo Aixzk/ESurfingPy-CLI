@@ -46,6 +46,6 @@ def imageOCR(imageFile):
                     black_point = 0
         result_raw = pytesseract.image_to_string(images)  # 图片转文字
         result = re.sub(u'([^\u4e00-\u9fa5\u0030-\u0039\u0041-\u005a\u0061-\u007a])', '', result_raw)  # 去除识别出来的特殊字符
-        return result
+        return True, result
     except Exception as Exc:
-        return '发生错误: {}'.format(Exc)
+        return False, Exc

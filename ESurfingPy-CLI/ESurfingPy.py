@@ -75,7 +75,12 @@ def login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug):
                 tempTime = time.time()
                 showDetail('正在识别验证码...')
                 showDebug('调用 Tesseract 识别验证码')
-                verifyCodeResult = OCR.imageOCR('Code.jpg')[0:4]  # 只取前4位
+                ocrSucceed, ocrResult = OCR.imageOCR('Code.jpg')
+                if ocrSucceed:
+                    verifyCodeResult = ocrResult[0:4]
+                else:
+                    print('识别验证码时发生错误：{}'.format(ocrResult))
+                    return
                 timeTaken = round(time.time() - tempTime, 2)
                 showDetail('识别验证码结果：{} 耗时：{}s'.format(verifyCodeResult, timeTaken))
                 showDebug('识别验证码结果：{} 耗时：{}s'.format(verifyCodeResult, timeTaken))

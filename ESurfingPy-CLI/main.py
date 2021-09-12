@@ -8,7 +8,7 @@ import time
 import click
 import ESurfingPy
 
-version = 0.13
+version = 0.14
 
 # 带时间前缀输出
 printWithTime = lambda text: print(time.strftime('[%Y-%m-%d %H:%M:%S]', time.localtime()), text)
