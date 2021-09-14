@@ -10,7 +10,8 @@ import json
 import requests
 
 # 带时间前缀输出
-printWithTime = lambda log: print(time.strftime('[%Y-%m-%d %H:%M:%S]', time.localtime()), log)
+timeformat = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+printWithTime = lambda log: print('[{}] {}'.format(timeformat, log))
 
 def getParameters():
     """获取 esurfingurl, wlanacip, wlanuserip 参数"""

@@ -8,15 +8,16 @@ import time
 import click
 import ESurfingPy
 
-version = 0.15
+version = 0.16
 
 # 带时间前缀输出
-printWithTime = lambda text: print(time.strftime('[%Y-%m-%d %H:%M:%S]', time.localtime()), text)
+timeformat = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+printWithTime = lambda text: print('[{}] {}'.format(timeformat, text))
 
 
 @click.group()
 def main():
-    """(v0.15)基于 Python 实现登录和登出广东天翼校园网网页认证通道的命令行工具。"""
+    """(v0.16)基于 Python 实现登录和登出广东天翼校园网网页认证通道的命令行工具。"""
     pass
 
 

@@ -2,17 +2,18 @@ import time
 import ESurfingPy
 import psutil as p
 
-prints = lambda text: print(time.strftime("\r[%Y-%m-%d %H:%M:%S] {}\t".format(text), time.localtime()), end="  ")
-printWithTime = lambda text: print(time.strftime('[%Y-%m-%d %H:%M:%S] {}'.format(text), time.localtime()))
+timeformat = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+prints = lambda text: print('\r[{}] {}\t'.format(timeformat, text), end='  ')
+printWithTime = lambda text: print('[{}] {}'.format(timeformat, text))
 
 
 def get_speed(t_type):
     """获取当前上行或下行速率"""
-    if t_type in ["ul", '上传']:
+    if t_type in ['ul', '上传']:
         first = p.net_io_counters().bytes_sent
         time.sleep(1)
         delta = p.net_io_counters().bytes_sent - first
-    elif t_type in ["dl", '下载']:
+    elif t_type in ['dl', '下载']:
         first = p.net_io_counters().bytes_recv
         time.sleep(1)
         delta = p.net_io_counters().bytes_recv - first
@@ -55,13 +56,13 @@ def speed_mode(mode, value, autostop, esrfingurl, wlanacip, wlanuserip, account,
         speed = get_speed(typestr)
         nowtraffic = round((get_traffic() - logtraffic) / 1024 / 1024, 2)
         prints(
-            "本次流量：{} MB  {}速度：{} MB/s  低速触发：{}/10  完成触发：{}/10".format(nowtraffic, typestr, speed, lowtimes, seemdone))
+            '本次流量：{} MB  {}速度：{} MB/s  低速触发：{}/10  完成触发：{}/10'.format(nowtraffic, typestr, speed, lowtimes, seemdone))
         if autostop:
             if speed <= 0.1:  # 速率低于 0.1 MB/s ，判定疑似传输完成
                 seemdone += 1
                 if seemdone == 11:
                     print()
-                    printWithTime("检测到连续 10s {}速率低于 0.1 MB/s，已自动停止".format(typestr))
+                    printWithTime('检测到连续 10s {}速率低于 0.1 MB/s，已自动停止'.format(typestr))
                     return
                 continue
             else:
@@ -70,7 +71,7 @@ def speed_mode(mode, value, autostop, esrfingurl, wlanacip, wlanuserip, account,
             lowtimes += 1
             if lowtimes == 11:
                 print()
-                printWithTime("检测到连续 10s {}速率低于 {} MB/s，疑似被限速，重新登录中……".format(typestr, value))
+                printWithTime('检测到连续 10s {}速率低于 {} MB/s，疑似被限速，重新登录中……'.format(typestr, value))
                 ESurfingPy.logout(esrfingurl, wlanacip, wlanuserip, account, password, signature, details, debug)
                 loginresult = ESurfingPy.login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug)
                 if firstlogin['result'] == 'succeed':
@@ -120,7 +121,7 @@ def traffic_mode(mode, value, esrfingurl, wlanacip, wlanuserip, account, passwor
         prints('{}速率：{} MB/s  流量触发：{}/{} MB'.format(typestr, speed, delta, value))
         if delta >= value:
             print()
-            printWithTime("重新登录中")
+            printWithTime('重新登录中')
             ESurfingPy.logout(esrfingurl, wlanacip, wlanuserip, account, password, signature, details, debug)
             loginresult = ESurfingPy.login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug)
             if firstlogin['result'] == 'succeed':
@@ -144,11 +145,11 @@ def interval_mode(value, esrfingurl, wlanacip, wlanuserip, account, password, de
 
     timecal = 0
     while True:
-        prints("即将于 {}s 后重新登录".format(value - timecal))
+        prints('即将于 {}s 后重新登录'.format(value - timecal))
         time.sleep(1)
         if value - timecal == 0:
             print()
-            prints("正在重新登录\n")
+            prints('正在重新登录\n')
 
             ESurfingPy.logout(esrfingurl, wlanacip, wlanuserip, account, password, signature, details, debug)
             loginresult = ESurfingPy.login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug)
@@ -174,7 +175,7 @@ def manual_mode(esrfingurl, wlanacip, wlanuserip, account, password, details, de
         return
 
     while True:
-        input(time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime()) + ' 按回车键以重新登录校园网')
+        input('[{}] 按回车键以重新登录校园网'.format(timeformat))
         ESurfingPy.logout(esrfingurl, wlanacip, wlanuserip, account, password, signature, details, debug)
         loginresult = ESurfingPy.login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug)
         if firstlogin['result'] == 'succeed':
