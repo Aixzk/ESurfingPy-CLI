@@ -2,9 +2,8 @@ import time
 import ESurfingPy
 import psutil as p
 
-timeformat = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-prints = lambda text: print('\r[{}] {}\t'.format(timeformat, text), end='  ')
-printWithTime = lambda text: print('[{}] {}'.format(timeformat, text))
+prints = lambda text: print('\r[{}] {}\t'.format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), text), end='  ')
+printWithTime = lambda text: print('[{}] {}'.format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), text))
 
 
 def get_speed(t_type):

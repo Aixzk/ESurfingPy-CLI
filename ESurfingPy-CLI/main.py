@@ -11,8 +11,7 @@ import ESurfingPy
 version = 0.16
 
 # 带时间前缀输出
-timeformat = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-printWithTime = lambda text: print('[{}] {}'.format(timeformat, text))
+printWithTime = lambda text: print('[{}] {}'.format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), text))
 
 
 @click.group()
