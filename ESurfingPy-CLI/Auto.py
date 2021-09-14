@@ -39,12 +39,12 @@ def speed_mode(mode, value, autostop, esrfingurl, wlanacip, wlanuserip, account,
     else:
         return
 
-    printWithTime('首次登陆尝试获取 signature ……')
+    printWithTime('首次登录尝试获取 signature ……')
     firstlogin = ESurfingPy.login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug)
     if firstlogin['result'] == 'succeed':
         signature = firstlogin['signature']
     else:
-        printWithTime('登陆失败：{}'.format(firstlogin))
+        printWithTime('登录失败：{}'.format(firstlogin))
         return
 
     lowtimes = 0  # 低速次数
@@ -71,12 +71,12 @@ def speed_mode(mode, value, autostop, esrfingurl, wlanacip, wlanuserip, account,
             if lowtimes == 11:
                 print()
                 printWithTime("检测到连续 10s {}速率低于 {} MB/s，疑似被限速，重新登录中……".format(typestr, value))
-                ESurfingPy.logout(esrfingurl, wlanacip, wlanuserip, account, signature, details, debug)
+                ESurfingPy.logout(esrfingurl, wlanacip, wlanuserip, account, password, signature, details, debug)
                 loginresult = ESurfingPy.login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug)
                 if firstlogin['result'] == 'succeed':
                     signature = loginresult['signature']
                 else:
-                    printWithTime('登陆失败：{}'.format(firstlogin))
+                    printWithTime('登录失败：{}'.format(firstlogin))
                     return
 
                 # 重置
@@ -105,12 +105,12 @@ def traffic_mode(mode, value, esrfingurl, wlanacip, wlanuserip, account, passwor
     else:
         return
 
-    printWithTime('首次登陆尝试获取 signature ……')
+    printWithTime('首次登录尝试获取 signature ……')
     firstlogin = ESurfingPy.login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug)
     if firstlogin['result'] == 'succeed':
         signature = firstlogin['signature']
     else:
-        printWithTime('登陆失败：{}'.format(firstlogin))
+        printWithTime('登录失败：{}'.format(firstlogin))
         return
 
     logtraffic = get_traffic()
@@ -121,12 +121,12 @@ def traffic_mode(mode, value, esrfingurl, wlanacip, wlanuserip, account, passwor
         if delta >= value:
             print()
             printWithTime("重新登录中")
-            ESurfingPy.logout(esrfingurl, wlanacip, wlanuserip, account, signature, details, debug)
+            ESurfingPy.logout(esrfingurl, wlanacip, wlanuserip, account, password, signature, details, debug)
             loginresult = ESurfingPy.login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug)
             if firstlogin['result'] == 'succeed':
                 signature = loginresult['signature']
             else:
-                printWithTime('登陆失败：{}'.format(firstlogin))
+                printWithTime('登录失败：{}'.format(firstlogin))
                 return
             logtraffic = get_traffic()
 
@@ -134,12 +134,12 @@ def traffic_mode(mode, value, esrfingurl, wlanacip, wlanuserip, account, passwor
 def interval_mode(value, esrfingurl, wlanacip, wlanuserip, account, password, details, debug):
     """间隔指定的时间自动重登校园网"""
 
-    printWithTime('首次登陆尝试获取 signature ……')
+    printWithTime('首次登录尝试获取 signature ……')
     firstlogin = ESurfingPy.login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug)
     if firstlogin['result'] == 'succeed':
         signature = firstlogin['signature']
     else:
-        printWithTime('登陆失败：{}'.format(firstlogin))
+        printWithTime('登录失败：{}'.format(firstlogin))
         return
 
     timecal = 0
@@ -148,14 +148,14 @@ def interval_mode(value, esrfingurl, wlanacip, wlanuserip, account, password, de
         time.sleep(1)
         if value - timecal == 0:
             print()
-            prints("正在重新登陆\n")
+            prints("正在重新登录\n")
 
-            ESurfingPy.logout(esrfingurl, wlanacip, wlanuserip, account, signature, details, debug)
+            ESurfingPy.logout(esrfingurl, wlanacip, wlanuserip, account, password, signature, details, debug)
             loginresult = ESurfingPy.login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug)
             if firstlogin['result'] == 'succeed':
                 signature = loginresult['signature']
             else:
-                printWithTime('登陆失败：{}'.format(firstlogin))
+                printWithTime('登录失败：{}'.format(firstlogin))
                 return
             timecal = 0
         else:
@@ -165,22 +165,22 @@ def interval_mode(value, esrfingurl, wlanacip, wlanuserip, account, password, de
 def manual_mode(esrfingurl, wlanacip, wlanuserip, account, password, details, debug):
     """手动按回车后自动重登校园网"""
 
-    printWithTime('首次登陆尝试获取 signature ……')
+    printWithTime('首次登录尝试获取 signature ……')
     firstlogin = ESurfingPy.login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug)
     if firstlogin['result'] == 'succeed':
         signature = firstlogin['signature']
     else:
-        printWithTime('登陆失败：{}'.format(firstlogin))
+        printWithTime('登录失败：{}'.format(firstlogin))
         return
 
     while True:
         input(time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime()) + ' 按回车键以重新登录校园网')
-        ESurfingPy.logout(esrfingurl, wlanacip, wlanuserip, account, signature, details, debug)
+        ESurfingPy.logout(esrfingurl, wlanacip, wlanuserip, account, password, signature, details, debug)
         loginresult = ESurfingPy.login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug)
         if firstlogin['result'] == 'succeed':
             signature = loginresult['signature']
         else:
-            printWithTime('登陆失败：{}'.format(firstlogin))
+            printWithTime('登录失败：{}'.format(firstlogin))
             return
 
 

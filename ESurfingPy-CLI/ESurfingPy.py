@@ -12,11 +12,35 @@ import requests
 # 带时间前缀输出
 printWithTime = lambda log: print(time.strftime('[%Y-%m-%d %H:%M:%S]', time.localtime()), log)
 
-def login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug):
+def getParameters():
+    """获取 esurfingurl, wlanacip, wlanuserip 参数"""
+    objUrl = 'http://189.cn'
+    try:
+        response = requests.get(url=objUrl)
+        esurfingurl = re.search('http://(.+?)/', response.url).group(1)
+        wlanacip = re.search('wlanacip=(.+?)&', response.url).group(1)
+        wlanuserip = re.search('wlanuserip=(.+)', response.url).group(1)
+        return True, esurfingurl, wlanacip, wlanuserip
+    except:
+        return False, None, None, None
+
+def login(esurfingurl, wlanacip, wlanuserip, account, password, details, debug):
     """发送 GET 请求登录校园网"""
 
     showDetail = lambda text: printWithTime(text) if details else None
     showDebug = lambda text: printWithTime('[debug] ' + text) if debug else None
+
+    # 缺少参数
+    if '' in [esurfingurl, wlanacip, wlanuserip]:
+        showDetail('缺少 ESurfingUrl, WlanACIP, WlanUserIP 参数，尝试获取中……')
+        result, esurfingurl, wlanacip, wlanuserip = getParameters()
+        showDetail('获取参数成功。')
+        showDebug('ESurfingUrl: {}'.format(esurfingurl))
+        showDebug('WlanACIP: {}'.format(wlanacip))
+        showDebug('WlanUserIP: {}'.format(wlanuserip))
+        if not result:
+            printWithTime('登录失败，缺少参数，且获取参数失败。')
+            return
 
     logData = {
         'time': time.time(),  # 开始时间
@@ -26,7 +50,7 @@ def login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug):
     while True:
         # 获取 JSESSIONID
         try:
-            url = 'http://{}/qs/index_gz.jsp?wlanacip={}&wlanuserip={}'.format(esrfingurl, wlanacip, wlanuserip)
+            url = 'http://{}/qs/index_gz.jsp?wlanacip={}&wlanuserip={}'.format(esurfingurl, wlanacip, wlanuserip)
             showDetail('正在获取 JSESSIONID ...')
             showDebug('发送 GET 请求：{}'.format(url))
             getResponse = requests.get(url)
@@ -49,7 +73,7 @@ def login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug):
             try:
                 showDetail('正在获取验证码...')
                 verifyCodeRegex = re.search('/common/image_code\.jsp\?time=\d+', str(getResponse.content)).group()
-                verifyCodeURL = 'http://{}{}'.format(esrfingurl, verifyCodeRegex)
+                verifyCodeURL = 'http://{}{}'.format(esurfingurl, verifyCodeRegex)
                 showDebug('验证码网址: {}'.format(verifyCodeURL))
                 headers = {
                     'Cookie': 'JSESSIONID=' + JSESSIONID,
@@ -119,7 +143,7 @@ def login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug):
 
         # 登录
         try:
-            loginURL = 'http://{}/ajax/login'.format(esrfingurl)
+            loginURL = 'http://{}/ajax/login'.format(esurfingurl)
             headers = {
                 'Cookie': 'loginUser={}; JSESSIONID={}'.format(account, JSESSIONID),
                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
@@ -144,7 +168,7 @@ def login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug):
         if resultCode == '0':  # 登录成功
             timeTaken = round(time.time() - logData['time'], 2)
             showDetail('登录成功，总耗时 {}s，失败 {} 次'.format(timeTaken, logData['times']))
-            printWithTime('登陆成功, signature: {}'.format(postResponse.cookies['signature']))
+            printWithTime('登录成功, signature: {}'.format(postResponse.cookies['signature']))
             returnData = {
                 'result': 'succeed',
                 'signature': postResponse.cookies['signature']
@@ -154,7 +178,7 @@ def login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug):
             # resultInfo: '登录已经成功，请不要重复登录'
             timeTaken = round(time.time() - logData['time'], 2)
             showDetail('重复登录，总耗时 {}s，失败 {} 次'.format(timeTaken, logData['times']))
-            printWithTime('登陆成功, signature: {}'.format(postResponse.cookies['signature']))
+            printWithTime('登录成功, signature: {}'.format(postResponse.cookies['signature']))
             returnData = {
                 'result': 'succeed',
                 'signature': postResponse.cookies['signature']
@@ -177,7 +201,7 @@ def login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug):
             }
             return returnData
         else:  # 其他情况
-            printWithTime('登陆失败，resultCode：{}  resultInfo：{}'.format(resultCode, resultInfo))
+            printWithTime('登录失败，resultCode：{}  resultInfo：{}'.format(resultCode, resultInfo))
             returnData = {
                 'result': 'failed',
                 'reason': resultInfo
@@ -185,16 +209,40 @@ def login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug):
             return returnData
 
 
-def logout(esrfingurl, wlanacip, wlanuserip, account, signature, details, debug):
+def logout(esurfingurl, wlanacip, wlanuserip, account, password, signature, details, debug):
     """发送 POST 请求登出校园网"""
 
     showDetail = lambda text: printWithTime(text) if details else None
     showDebug = lambda text: printWithTime(text) if debug else None
 
+    # 缺少参数
+    if '' in [esurfingurl, wlanacip, wlanuserip]:
+        printWithTime('缺少 ESurfingUrl, WlanACIP, WlanUserIP 参数，尝试获取中……')
+        result, esurfingurl, wlanacip, wlanuserip = getParameters()
+        # 本机已经登录了就不能通过这个方式获取参数了，但是本机没登录的为其他设备远程登出
+        if not result:
+            printWithTime('登出失败，缺少参数，且获取参数失败。')
+            return
+
+    # 缺少 signature
+    if signature == '':
+        showDetail('缺少 signature，尝试登录以获取该参数。')
+        loginResult = login(esurfingurl, wlanacip, wlanuserip, account, password, details, debug)
+        showDetail('获取参数成功。')
+        showDebug('ESurfingUrl: {}'.format(esurfingurl))
+        showDebug('WlanACIP: {}'.format(wlanacip))
+        showDebug('WlanUserIP: {}'.format(wlanuserip))
+        if loginResult['result'] == 'succeed':
+            signature = loginResult['signature']
+            showDetail('成功获取 signature: {}'.format(signature))
+        else:
+            printWithTime('登出失败，缺少 signature 参数。')
+            return
+
     try:
         logTime = time.time()
         showDetail('正在登出 ...')
-        url = 'http://{}/ajax/logout'.format(esrfingurl)
+        url = 'http://{}/ajax/logout'.format(esurfingurl)
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36 SE 2.X MetaSr 1.0',
             'Cookie': 'signature={}; loginUser={}'.format(signature, account),

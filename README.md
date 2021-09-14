@@ -4,7 +4,7 @@
 
 ## 简介
 
-基于 Python 实现登录和登出广东天翼校园网的命令行工具。根据网页认证的源码和抓包分析研究而成，如果你的学校用此方式登录会提示 `已办理一人一号多终端业务的用户，请使用客户端登录`，那么用此程序也是一样的结果的。
+基于 Python 实现登录和登出广东天翼校园网的命令行工具。根据网页认证的源码和抓包分析研究而成，如果你的学校禁止网页登录（提示 `已办理一人一号多终端业务的用户，请使用客户端登录`），那么用此项目不适合适用于你的学校。
 
 ![4S13ct.png](https://z3.ax1x.com/2021/09/11/4S13ct.png)
 
@@ -14,31 +14,39 @@
 
 ## 依赖
 
-+ 如果要运行此项目的 .py 文件，需要安装部分第三方模块和 Tesseract 程序。
++ 如果要运行已经编译好的可执行文件，只需要安装 Tesseract 程序即可。
 
-+ 如果要运行已经打包好的可执行文件文件，只需要安装 Tesseract 程序即可。
++ 如果要运行此项目的 python 文件，需要安装  Tesseract 程序和第三方模块。
+
+### Tesseract
+
+  广东天翼校园网网页登录方式需要验证码，此项目调用 Tesseract 实现离线识别验证码。
+
+  [【官方】tesseract-ocr-w64-setup-v5.0.0.20190623.exe](https://digi.bib.uni-mannheim.de/tesseract/tesseract-ocr-w64-setup-v5.0.0.20190623.exe)
+
+  [【蓝奏云】tesseract-ocr-w64-setup-v5.0.0.20190623.exe](https://wwa.lanzoui.com/iG1WHqhz7ni)
+
+  下载并安装即可，**一定要设置好环境变量**，否则无法识别验证码。
 
 ### 第三方模块
 
-此项目用到了 `psutil` 、 `pytesseract` 、`execjs` 等模块。
+执行以下命令安装第三方模块，Linux 可能需要将 `pip` 换成 `pip3` ：
 
-可以执行 `pip install psutil` 命令安装，网络不畅通可以用豆瓣镜像源代替：
+```
+pip install pytesseract
+pip install PyExecJS
+pip install requests
+pip install psutil
+pip install click
+```
 
-`pip install psutil -i http://pypi.douban.com/simple --trusted-host pypi.douban.com`
+网络不畅通可以用豆瓣镜像源代替，例如：
 
-其他的模块替换上述命令中的 `psutil` 即可。
+````
+pip install pytesseract -i http://pypi.douban.com/simple --trusted-host pypi.douban.com
+````
 
-### Tesseract - 离线识别验证码
-
-广东天翼校园网网页登录方式需要验证码，此项目调用 Tesseract 实现离线识别验证码。
-
-[【官方】tesseract-ocr-w64-setup-v5.0.0.20190623.exe](https://digi.bib.uni-mannheim.de/tesseract/tesseract-ocr-w64-setup-v5.0.0.20190623.exe)
-
-[【分流】tesseract-ocr-w64-setup-v5.0.0.20190623.exe](https://wwa.lanzoui.com/iG1WHqhz7ni)
-
-下载并安装即可，一定要设置好环境变量，否则无法识别验证码。
-
-
+其他的模块替换上述命令中的 `pytesseract` 即可。
 
 ## 参数说明
 
@@ -48,7 +56,7 @@
 
 1. `ESurfingURL` ：校园网登录网址（部分），需要带端口。未登录时可能会出现域名解析错误（未能连接DNS服务器），可以先手动登录校园网后，使用 ping 等网络工具解析，然后用 `IP:端口` 代替，例如：`125.88.59.131:10001`
 2. `WlanACIP` ：校园网的认证服务器IP，应该每个学校都不同；
-3. `WlanUserIP` ：要登录的设备的IP，可以不是本机的，实现远程登录；
+3. `WlanUserIP` ：要登录的设备的IP，**可以不是本机的，实现远程登录**；
 4. `Account` ：校园网账号
 5. `Password` ：校园网账号的密码
 
@@ -61,6 +69,8 @@
 ```
 ./ESurfingPy-CLI.exe --help
 Usage: ESurfingPy-CLI.exe [OPTIONS] COMMAND [ARGS]...
+
+  基于 Python 实现登录和登出广东天翼校园网网页认证通道的命令行工具。
 
 Options:
   --help  Show this message and exit.
@@ -81,7 +91,7 @@ Usage: ESurfingPy-CLI.exe login [OPTIONS]
   发送 GET 请求登录校园网
 
 Options:
-  -url, --esrfingurl TEXT     登录网址
+  -url, --esrfingurl TEXT     校园网登录网址
   -acip, --wlanacip TEXT      认证服务器IP
   -userip, --wlanuserip TEXT  登录设备IP
   -acc, --account TEXT        账号
@@ -90,6 +100,8 @@ Options:
   -debug BOOLEAN              调试模式
   --help                      Show this message and exit.
 ```
+
+**本机登录校园网的话，`-url`, `-acip`, `-userip` 可以不填，程序会尝试自动获取。**
 
 示例：`./ESurfingPy-CLI.exe login -url 125.88.59.131:10001 -acip 123.123.123.123 -userip 234.234.234.234 -acc 15012341234 -pwd 12345678 -details true`
 
@@ -102,19 +114,24 @@ Usage: ESurfingPy-CLI.exe logout [OPTIONS]
   发送 POST 请求登出校园网
 
 Options:
-  -url, --esrfingurl TEXT     登出网址
+  -url, --esrfingurl TEXT     校园网登录网址
   -acip, --wlanacip TEXT      认证服务器IP
   -userip, --wlanuserip TEXT  登录设备IP
   -acc, --account TEXT        账号
-  -sign, --signature TEXT     登录成功时返回的签名
+  -pwd, --password TEXT       密码
+  -sign, --signature TEXT     签名
   -details BOOLEAN            输出详细过程
   -debug BOOLEAN              调试模式
   --help                      Show this message and exit.
 ```
 
-示例：`./ESurfingPy-CLI.exe logout -url 125.88.59.131:10001 -acip 123.123.123.123 -userip 234.234.234.234 -acc 15012341234 -sign XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX -details true`
+登出需要 `signature` ，不需要 `password`，因此填了签名可以不填密码；
 
-`signature` 可以登录获得（即使重复登录），也可以自己写程序将登录时返回的 `signature` 保存下来，需要时再读取使用。
+但是如果没有签名，可以不填签名，填密码，程序会尝试登陆来获取 `signature` 然后再登出。
+
+`signature` 可以登录获得（即使重复登录），可以自己写程序将登录时返回的 `signature` 保存下来，需要时再读取使用。
+
+示例：`./ESurfingPy-CLI.exe logout -url 125.88.59.131:10001 -acip 123.123.123.123 -userip 234.234.234.234 -acc 15012341234 -sign XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX -details true`
 
 ### 识别验证码
 
@@ -130,7 +147,7 @@ Options:
 
 示例：
 
-识别当前目录下的 code.png ：`./ESurfingPy-CLI.exe ocr code.png`
+识别当前目录下的 code.png ：`./ESurfingPy-CLI.exe ocr -img code.png`
 
 ### 多种模式自动重登
 
@@ -143,8 +160,8 @@ Usage: ESurfingPy-CLI.exe auto [OPTIONS]
 Options:
   -m, --mode TEXT             触发模式
   -v, --value TEXT            触发网速(MB/s)或流量(MB)或时间(s)
-  -as, --autostop BOOLEAN     自动停止(连续 10s 低于 0.1MB/s，仅对 1、2 模式有效)
-  -url, --esrfingurl TEXT     登出网址
+  -as, --autostop BOOLEAN     自动停止
+  -url, --esrfingurl TEXT     校园网登录网址
   -acip, --wlanacip TEXT      认证服务器IP
   -userip, --wlanuserip TEXT  登录设备IP
   -acc, --account TEXT        账号
@@ -191,7 +208,7 @@ Options:
 
 ### 2. Win10 开机自动登录校园网
 
-根据上一个制作一个登录的快捷方式，然后按下 `Win` + `R` 输入 `shell:startup` 并确定，将登录的快捷方式拖进弹出的窗口，如果杀毒软件提示有程序想自启就点允许就可以了。（最好将 DHCP 改成手动，或者在路由器里将设备 IP 固定）
+根据上一个制作一个登录的快捷方式，然后按下 `Win` + `R` 输入 `shell:startup` 并确定，将登录的快捷方式拖进弹出的窗口，如果杀毒软件提示有程序想自启就点允许就可以了。
 
 ### 3. 更多
 
