@@ -1,13 +1,13 @@
 """
-GitHub: https://github.com/Aixzk/ESurfingPy
+GitHub: https://github.com/Aixzk/ESurfingPy-CLI
 """
 
 import re
 import RSA
-import OCR
 import time
 import json
 import requests
+import theocr
 
 # 带时间前缀输出
 printWithTime = lambda log: print('[{}] {}'.format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), log))
@@ -99,7 +99,7 @@ def login(esurfingurl, wlanacip, wlanuserip, account, password, details, debug):
                 tempTime = time.time()
                 showDetail('正在识别验证码...')
                 showDebug('调用 Tesseract 识别验证码')
-                ocrSucceed, ocrResult = OCR.imageOCR('Code.jpg')
+                ocrSucceed, ocrResult = theocr.imageOCR('Code.jpg')
                 if ocrSucceed:
                     verifyCodeResult = ocrResult[0:4]
                 else:

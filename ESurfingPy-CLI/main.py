@@ -1,22 +1,16 @@
 """
-GitHub: https://github.com/Aixzk/ESurfingPy
+GitHub: https://github.com/Aixzk/ESurfingPy-CLI
 """
 
-import OCR
-import Auto
-import time
 import click
+import theocr
+import Auto
 import ESurfingPy
-
-version = 0.16
-
-# 带时间前缀输出
-printWithTime = lambda text: print('[{}] {}'.format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), text))
 
 
 @click.group()
 def main():
-    """(v0.16)基于 Python 实现登录和登出广东天翼校园网网页认证通道的命令行工具。"""
+    """(v0.17)基于 Python 实现登录和登出广东天翼校园网网页认证通道的命令行工具。"""
     pass
 
 
@@ -70,7 +64,11 @@ def auto(mode, value, autostop, esrfingurl, wlanacip, wlanuserip, account, passw
 @click.option('-img', '--imagefile', prompt='Image File:', help='图片路径')
 def ocr(imagefile):
     """识别验证码（可作调试用）"""
-    print(OCR.imageOCR(imagefile))
+    succeed, result = theocr.imageOCR(imagefile)
+    if succeed:
+        print('识别成功，识别结果：{}'.format(result))
+    else:
+        print('识别失败，错误信息：{}'.format(result))
     return
 
 if __name__ == '__main__':

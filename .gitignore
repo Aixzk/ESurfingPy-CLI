@@ -1,0 +1,6 @@
+.idea/
+存档文件/
+ESurfingPy-CLI/main.spec
+ESurfingPy-CLI/__pycache__/
+ESurfingPy-CLI/build/
+ESurfingPy-CLI/dist/

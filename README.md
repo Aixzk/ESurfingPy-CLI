@@ -12,43 +12,39 @@
 
 
 
+## 演示
+
+![效果演示动图](https://z3.ax1x.com/2021/09/24/4BQfYT.gif)
+
+
+
 ## 依赖
 
-+ 如果要运行已经编译好的可执行文件，只需要安装 Tesseract 程序即可。
++ 如果要运行已经编译好的可执行文件，无需安装任何第三方程序。
 
-+ 如果要运行此项目的 python 文件，需要安装  Tesseract 程序和第三方模块。
-
-### Tesseract
-
-  广东天翼校园网网页登录方式需要验证码，此项目调用 Tesseract 实现离线识别验证码。
-
-  [【官方】tesseract-ocr-w64-setup-v5.0.0.20190623.exe](https://digi.bib.uni-mannheim.de/tesseract/tesseract-ocr-w64-setup-v5.0.0.20190623.exe)
-
-  [【蓝奏云】tesseract-ocr-w64-setup-v5.0.0.20190623.exe](https://wwa.lanzoui.com/iG1WHqhz7ni)
-
-  下载并安装即可，**一定要设置好环境变量**，否则无法识别验证码。
-
-### 第三方模块
++ 如果要运行此项目的 python 文件，需要包括但不仅限于以下模块：
 
 执行以下命令安装第三方模块，Linux 可能需要将 `pip` 换成 `pip3` ：
 
 ```
-pip install pytesseract
+pip install click
+pip install psutil
+pip install ddddocr
 pip install PyExecJS
 pip install requests
-pip install psutil
-pip install click
 ```
 
 网络不畅通可以用豆瓣镜像源代替，例如：
 
 ````
-pip install pytesseract -i http://pypi.douban.com/simple --trusted-host pypi.douban.com
+pip install click -i http://pypi.douban.com/simple --trusted-host pypi.douban.com
 ````
 
-其他的模块替换上述命令中的 `pytesseract` 即可。
+其他的模块替换上述命令中的 `click` 即可。
 
-## 参数说明
+
+
+## 参数
 
 设备刚连上校园网络时自动弹出的，或者已经连上但未登录时打开任意网页跳转到下面这个登录网页，其中有此程序要的参数：
 
@@ -62,7 +58,7 @@ pip install pytesseract -i http://pypi.douban.com/simple --trusted-host pypi.dou
 
 ------
 
-# 命令行（CLI）
+## 命令行（CLI）
 
 可以通过调用 main.py 或已经编译好的可执行文件（没有适合自己架构的可以自行编译）来快速使用。
 
@@ -218,11 +214,8 @@ Options:
 
 ------
 
-# 不足
+## 不足
 
-1. 如果有网络的话识别验证码只需调用网络 API 即可，但此项目性质特殊，本身就是用于登录校园网以连接互联网。在断网识别验证码的方法中，我选择了调用 Tesseract 来实现离线识别验证码，效率实测高效，准确率也不错，但缺点是在新环境中使用此程序时需要安装 Tesseract。欢迎 PR 不依赖第三方程序的验证码识别方法！
-2. 登录校园网过程中需要将 账号、密码和验证码 三者拼接后经 RSA 加密计算得到 loginkey 发送到服务器请求登录，但我不懂 RSA 加密算法，因此项目通过将校园网的实现 RSA 加密的原 js 文件魔改后，使用 `execjs` 模块在 Python 中传入参数来获得 loginkey，缺点是效率会低很多。欢迎 PR 更好的计算方法！
-
-如果对以上两点有改进想法和能力的欢迎参与开发此项目。
+登录校园网过程中需要将 `账号`、`密码`和`验证码` 三者拼接后经 RSA 加密计算得到 `loginkey` 发送到服务器请求登录，但我不懂 RSA 加密算法，因此项目通过将校园网的实现 RSA 加密的原 js 文件魔改后，使用 `execjs` 模块传参执行 js 来获得 `loginkey`，缺点是效率可能会低一点。欢迎 PR 更好的计算方法！
 
 项目QQ群讨论群号码：791455104

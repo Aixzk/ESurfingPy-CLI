@@ -1,3 +1,7 @@
+"""
+GitHub: https://github.com/Aixzk/ESurfingPy-CLI
+"""
+
 import time
 import ESurfingPy
 import psutil as p
@@ -174,7 +178,7 @@ def manual_mode(esrfingurl, wlanacip, wlanuserip, account, password, details, de
         return
 
     while True:
-        input('[{}] 按回车键以重新登录校园网'.format(timeformat))
+        input('[{}] 按回车键以重新登录校园网'.format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())))
         ESurfingPy.logout(esrfingurl, wlanacip, wlanuserip, account, password, signature, details, debug)
         loginresult = ESurfingPy.login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug)
         if firstlogin['result'] == 'succeed':
