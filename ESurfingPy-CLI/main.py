@@ -10,7 +10,7 @@ import ESurfingPy
 
 @click.group()
 def main():
-    """(v0.17)基于 Python 实现登录和登出广东天翼校园网网页认证通道的命令行工具。"""
+    """ (v0.18)基于 Python 实现登录和登出广东天翼校园网网页认证通道的命令行工具。 """
     pass
 
 
@@ -23,9 +23,8 @@ def main():
 @click.option('-details', default=False, type=bool, help='输出详细过程')
 @click.option('-debug', default=False, type=bool, help='调试模式')
 def login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug):
-    """发送 GET 请求登录校园网"""
-    ESurfingPy.login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug)
-    return
+    """ 发送 GET 请求登录校园网 """
+    return ESurfingPy.login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug)
 
 
 @main.command()
@@ -38,9 +37,8 @@ def login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug):
 @click.option('-details', default=False, type=bool, help='输出详细过程')
 @click.option('-debug', default=False, type=bool, help='调试模式')
 def logout(esrfingurl, wlanacip, wlanuserip, account, password, signature, details, debug):
-    """发送 POST 请求登出校园网"""
-    ESurfingPy.logout(esrfingurl, wlanacip, wlanuserip, account, password, signature, details, debug)
-    return
+    """ 发送 POST 请求登出校园网 """
+    return ESurfingPy.logout(esrfingurl, wlanacip, wlanuserip, account, password, signature, details, debug)
 
 
 @main.command()
@@ -55,21 +53,21 @@ def logout(esrfingurl, wlanacip, wlanuserip, account, password, signature, detai
 @click.option('-details', default=False, type=bool, help='输出详细过程')
 @click.option('-debug', default=False, type=bool, help='调试模式')
 def auto(mode, value, autostop, esrfingurl, wlanacip, wlanuserip, account, password, details, debug):
-    """多种模式触发重登校园网"""
-    Auto.Relogin(mode, value, autostop, esrfingurl, wlanacip, wlanuserip, account, password, details, debug)
-    return
+    """ 多种模式触发重登校园网 """
+    return Auto.Relogin(mode, value, autostop, esrfingurl, wlanacip, wlanuserip, account, password, details, debug)
 
 
 @main.command()
 @click.option('-img', '--imagefile', prompt='Image File:', help='图片路径')
 def ocr(imagefile):
-    """识别验证码（可作调试用）"""
+    """ 识别验证码（可作调试用） """
     succeed, result = theocr.imageOCR(imagefile)
     if succeed:
-        print('识别成功，识别结果：{}'.format(result))
+        print(f'识别成功，识别结果：{result}')
     else:
-        print('识别失败，错误信息：{}'.format(result))
-    return
+        print(f'识别失败，错误信息：{result}')
+    return result
+
 
 if __name__ == '__main__':
     main()

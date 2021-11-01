@@ -4,7 +4,7 @@ import ddddocr
 
 
 def imageOCR(imageFile):
-    """调用 ddddocr 识别验证码"""
+    """ 调用 ddddocr 识别验证码 """
     try:
         ocr = ddddocr.DdddOcr()
         with open(imageFile, 'rb') as f:
@@ -21,9 +21,9 @@ def imageOCR(imageFile):
 # from PIL import Image
 #
 # def imageOCR(imageFile):
-#     """调用 Tesseract 识别验证码"""
+#     """ 调用 Tesseract 识别验证码 """
 #     if not os.path.exists(imageFile):
-#         return '不存在图像文件：{}'.format(imageFile)
+#         return f'不存在图像文件：{imageFile}'
 #     try:
 #         CodeImage = Image.open(imageFile)  # 读取验证码
 #         CodeImage = CodeImage.convert('L')  # 转灰度

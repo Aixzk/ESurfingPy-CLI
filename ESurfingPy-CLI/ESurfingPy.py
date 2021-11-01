@@ -10,10 +10,11 @@ import requests
 import theocr
 
 # 带时间前缀输出
-printWithTime = lambda log: print('[{}] {}'.format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), log))
+printWithTime = lambda log: print(f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}] {log}')
+
 
 def getParameters():
-    """获取 esurfingurl, wlanacip, wlanuserip 参数"""
+    """ 获取 esurfingurl, wlanacip, wlanuserip 参数 """
     objUrl = 'http://189.cn'
     try:
         response = requests.get(url=objUrl)
@@ -24,8 +25,9 @@ def getParameters():
     except:
         return False, None, None, None
 
+
 def login(esurfingurl, wlanacip, wlanuserip, account, password, details, debug):
-    """发送 GET 请求登录校园网"""
+    """ 发送 GET 请求登录校园网 """
 
     showDetail = lambda text: printWithTime(text) if details else None
     showDebug = lambda text: printWithTime('[debug] ' + text) if debug else None
@@ -35,9 +37,9 @@ def login(esurfingurl, wlanacip, wlanuserip, account, password, details, debug):
         showDetail('缺少 ESurfingUrl, WlanACIP, WlanUserIP 参数，尝试获取中……')
         result, esurfingurl, wlanacip, wlanuserip = getParameters()
         showDetail('获取参数成功。')
-        showDebug('ESurfingUrl: {}'.format(esurfingurl))
-        showDebug('WlanACIP: {}'.format(wlanacip))
-        showDebug('WlanUserIP: {}'.format(wlanuserip))
+        showDebug(f'ESurfingUrl: {esurfingurl}')
+        showDebug(f'WlanACIP: {wlanacip}')
+        showDebug(f'WlanUserIP: {wlanuserip}')
         if not result:
             printWithTime('登录失败，缺少参数，且获取参数失败。')
             return
@@ -48,18 +50,19 @@ def login(esurfingurl, wlanacip, wlanuserip, account, password, details, debug):
     }
 
     while True:
-        # 获取 JSESSIONID
+        # 访问认证登录页面
         try:
-            url = 'http://{}/qs/index_gz.jsp?wlanacip={}&wlanuserip={}'.format(esurfingurl, wlanacip, wlanuserip)
+            url = f'http://{esurfingurl}/qs/index_gz.jsp?wlanacip={wlanacip}&wlanuserip={wlanuserip}'
             showDetail('正在获取 JSESSIONID ...')
-            showDebug('发送 GET 请求：{}'.format(url))
+            showDebug(f'发送 GET 请求：{url}')
             getResponse = requests.get(url)
-            showDebug('收到 GET 回应：{}\ncookies: {}\ncontent: {}'.format(getResponse, getResponse.cookies, getResponse.content.decode()))
+            showDebug(
+                f'收到 GET 回应：{getResponse}\ncookies: {getResponse.cookies}\ncontent: {getResponse.content.decode()}')
             JSESSIONID = getResponse.cookies['JSESSIONID']
             showDetail('成功获取 JSESSIONID')
-            showDebug('成功获取 JSESSIONID: {}'.format(JSESSIONID))
+            showDebug(f'成功获取 JSESSIONID: {JSESSIONID}')
         except Exception as Exc:
-            printWithTime('获取 JSESSIONID 时发生错误：\n{}'.format(Exc))
+            printWithTime(f'获取 JSESSIONID 时发生错误：\n{Exc}')
             returnData = {
                 'result': 'failed',
                 'locate': 'JSESSIONID',
@@ -73,8 +76,8 @@ def login(esurfingurl, wlanacip, wlanuserip, account, password, details, debug):
             try:
                 showDetail('正在获取验证码...')
                 verifyCodeRegex = re.search('/common/image_code\.jsp\?time=\d+', str(getResponse.content)).group()
-                verifyCodeURL = 'http://{}{}'.format(esurfingurl, verifyCodeRegex)
-                showDebug('验证码网址: {}'.format(verifyCodeURL))
+                verifyCodeURL = f'http://{esurfingurl}{verifyCodeRegex}'
+                showDebug(f'验证码网址: {verifyCodeURL}')
                 headers = {
                     'Cookie': 'JSESSIONID=' + JSESSIONID,
                     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
@@ -86,7 +89,7 @@ def login(esurfingurl, wlanacip, wlanuserip, account, password, details, debug):
                     showDebug('已保存到运行目录下的 Code.jpg')
                 showDetail('成功获取验证码')
             except Exception as Exc:
-                printWithTime('获取验证码时发生错误：\n{}'.format(Exc))
+                printWithTime(f'获取验证码时发生错误：\n{Exc}')
                 returnData = {
                     'result': 'failed',
                     'locate': 'GetVerifyCode',
@@ -103,11 +106,11 @@ def login(esurfingurl, wlanacip, wlanuserip, account, password, details, debug):
                 if ocrSucceed:
                     verifyCodeResult = ocrResult[0:4]
                 else:
-                    print('识别验证码时发生错误：{}'.format(ocrResult))
+                    print(f'识别验证码时发生错误：{ocrResult}')
                     return
                 timeTaken = round(time.time() - tempTime, 2)
-                showDetail('识别验证码结果：{} 耗时：{}s'.format(verifyCodeResult, timeTaken))
-                showDebug('识别验证码结果：{} 耗时：{}s'.format(verifyCodeResult, timeTaken))
+                showDetail(f'识别验证码结果：{verifyCodeResult} 耗时：{timeTaken}s')
+                showDebug(f'识别验证码结果：{verifyCodeResult} 耗时：{timeTaken}s')
                 if len(verifyCodeResult) == 4:  # 验证码识别结果不是 4 位
                     break
                 else:
@@ -115,7 +118,7 @@ def login(esurfingurl, wlanacip, wlanuserip, account, password, details, debug):
                     showDebug('识别结果不符合条件')
                     continue
             except Exception as Exc:
-                printWithTime('识别验证码时发生错误：\n{}'.format(Exc))
+                printWithTime(f'识别验证码时发生错误：\n{Exc}')
                 returnData = {
                     'result': 'failed',
                     'locate': 'OCRVerifyCode',
@@ -130,10 +133,10 @@ def login(esurfingurl, wlanacip, wlanuserip, account, password, details, debug):
             showDebug('执行 RSA JavaScript 计算 loginKey ...')
             loginKey = RSA.Encrypt(account, password, verifyCodeResult)
             timeTaken = round(time.time() - tempTime, 2)
-            showDetail('完成计算，耗时：{}s'.format(timeTaken))
-            showDebug('完成计算，耗时：{}s，loginKey：{}'.format(timeTaken, loginKey))
+            showDetail(f'完成计算，耗时：{timeTaken}s')
+            showDebug(f'完成计算，耗时：{timeTaken}s，loginKey：{loginKey}')
         except Exception as Exc:
-            printWithTime('计算 loginKey 时发生错误：\n{}'.format(Exc))
+            printWithTime(f'计算 loginKey 时发生错误：\n{Exc}')
             returnData = {
                 'result': 'failed',
                 'locate': 'loginKey',
@@ -143,18 +146,18 @@ def login(esurfingurl, wlanacip, wlanuserip, account, password, details, debug):
 
         # 登录
         try:
-            loginURL = 'http://{}/ajax/login'.format(esurfingurl)
+            loginURL = f'http://{esurfingurl}/ajax/login'
             headers = {
-                'Cookie': 'loginUser={}; JSESSIONID={}'.format(account, JSESSIONID),
+                'Cookie': f'loginUser={account}; JSESSIONID={JSESSIONID}',
                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
             }
             data = 'loginKey=' + loginKey + '&wlanuserip=' + wlanuserip + '&wlanacip=' + wlanacip
             showDetail('发送登录请求...')
-            showDebug('发送 POST 请求：{}\nheaders: {}\ndata: {}'.format(loginURL, headers, data))
+            showDebug(f'发送 POST 请求：{loginURL}\nheaders: {headers}\ndata: {data}')
             postResponse = requests.post(url=loginURL, headers=headers, data=data)
-            showDebug('收到 POST 回应：{}\ncookies: {}\ncontent: {}'.format(postResponse, postResponse.cookies, postResponse.content))
+            showDebug(f'收到 POST 回应：{postResponse}\ncookies: {postResponse.cookies}\ncontent: {postResponse.content}')
         except Exception as Exc:
-            printWithTime('发送登录请求失败，原因：\n{}'.format(Exc))
+            printWithTime(f'发送登录请求失败，原因：\n{Exc}')
             returnData = {
                 'result': 'failed',
                 'failed': 'Send login request',
@@ -167,8 +170,8 @@ def login(esurfingurl, wlanacip, wlanuserip, account, password, details, debug):
         resultInfo = json.loads(postResponse.text)['resultInfo']
         if resultCode == '0':  # 登录成功
             timeTaken = round(time.time() - logData['time'], 2)
-            showDetail('登录成功，总耗时 {}s，失败 {} 次'.format(timeTaken, logData['times']))
-            printWithTime('登录成功, signature: {}'.format(postResponse.cookies['signature']))
+            showDetail(f'登录成功，总耗时 {timeTaken}s，失败 {logData["times"]} 次')
+            printWithTime(f'登录成功, signature: {postResponse.cookies["signature"]}')
             returnData = {
                 'result': 'succeed',
                 'signature': postResponse.cookies['signature']
@@ -177,8 +180,8 @@ def login(esurfingurl, wlanacip, wlanuserip, account, password, details, debug):
         elif resultCode == '13002000':  # 重复登录
             # resultInfo: '登录已经成功，请不要重复登录'
             timeTaken = round(time.time() - logData['time'], 2)
-            showDetail('重复登录，总耗时 {}s，失败 {} 次'.format(timeTaken, logData['times']))
-            printWithTime('登录成功, signature: {}'.format(postResponse.cookies['signature']))
+            showDetail(f'重复登录，总耗时 {timeTaken}s，失败 {logData["times"]} 次')
+            printWithTime(f'登录成功, signature: {postResponse.cookies["signature"]}')
             returnData = {
                 'result': 'succeed',
                 'signature': postResponse.cookies['signature']
@@ -201,7 +204,7 @@ def login(esurfingurl, wlanacip, wlanuserip, account, password, details, debug):
             }
             return returnData
         else:  # 其他情况
-            printWithTime('登录失败，resultCode：{}  resultInfo：{}'.format(resultCode, resultInfo))
+            printWithTime(f'登录失败，resultCode：{resultCode}  resultInfo：{resultInfo}')
             returnData = {
                 'result': 'failed',
                 'reason': resultInfo
@@ -210,7 +213,7 @@ def login(esurfingurl, wlanacip, wlanuserip, account, password, details, debug):
 
 
 def logout(esurfingurl, wlanacip, wlanuserip, account, password, signature, details, debug):
-    """发送 POST 请求登出校园网"""
+    """ 发送 POST 请求登出校园网 """
 
     showDetail = lambda text: printWithTime(text) if details else None
     showDebug = lambda text: printWithTime(text) if debug else None
@@ -229,12 +232,12 @@ def logout(esurfingurl, wlanacip, wlanuserip, account, password, signature, deta
         showDetail('缺少 signature，尝试登录以获取该参数。')
         loginResult = login(esurfingurl, wlanacip, wlanuserip, account, password, details, debug)
         showDetail('获取参数成功。')
-        showDebug('ESurfingUrl: {}'.format(esurfingurl))
-        showDebug('WlanACIP: {}'.format(wlanacip))
-        showDebug('WlanUserIP: {}'.format(wlanuserip))
+        showDebug(f'ESurfingUrl: {esurfingurl}')
+        showDebug(f'WlanACIP: {wlanacip}')
+        showDebug(f'WlanUserIP: {wlanuserip}')
         if loginResult['result'] == 'succeed':
             signature = loginResult['signature']
-            showDetail('成功获取 signature: {}'.format(signature))
+            showDetail(f'成功获取 signature: {signature}')
         else:
             printWithTime('登出失败，缺少 signature 参数。')
             return
@@ -242,18 +245,18 @@ def logout(esurfingurl, wlanacip, wlanuserip, account, password, signature, deta
     try:
         logTime = time.time()
         showDetail('正在登出 ...')
-        url = 'http://{}/ajax/logout'.format(esurfingurl)
+        url = f'http://{esurfingurl}/ajax/logout'
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36 SE 2.X MetaSr 1.0',
-            'Cookie': 'signature={}; loginUser={}'.format(signature, account),
+            'Cookie': f'signature={signature}; loginUser={account}',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         }
         data = 'wlanuserip=' + wlanuserip + '&wlanacip=' + wlanacip
-        showDebug('发送 POST 请求：{}\nheaders: {}\ndata: {}'.format(url, json.dumps(headers, indent=4), data))
+        showDebug(f'发送 POST 请求：{url}\nheaders: {json.dumps(headers, indent=4)}\ndata: {data}')
         postResponse = requests.post(url=url, headers=headers, data=data)
-        showDebug('收到 POST 回应：{}\nheaders: {}\ndata: {}'.format(postResponse, postResponse.headers, postResponse.content.decode()))
+        showDebug(f'收到 POST 回应：{postResponse}\nheaders: {postResponse.headers}\ndata: {postResponse.content.decode()}')
     except Exception as Exc:
-        printWithTime('发送 POST 请求时发生错误：\n{}'.format(Exc))
+        printWithTime(f'发送 POST 请求时发生错误：\n{Exc}')
         returnData = {
             'result': 'failed',
             'failed': 'POST',
@@ -265,13 +268,13 @@ def logout(esurfingurl, wlanacip, wlanuserip, account, password, signature, deta
     resultInfo = json.loads(postResponse.text)['resultInfo']
     if resultCode == '0':  # 登出成功（或重复登出）
         timeTaken = round(time.time() - logTime, 2)
-        showDetail('登出成功，耗时 {}s'.format(timeTaken))
-        showDebug('登出成功，耗时 {}s'.format(timeTaken))
+        showDetail(f'登出成功，耗时 {timeTaken}s')
+        showDebug(f'登出成功，耗时 {timeTaken}s')
         returnData = {
             'result': 'succeed'
         }
     else:
-        printWithTime('登出失败，返回状态码：{} 信息：{}'.format(resultCode, resultInfo))
+        printWithTime(f'登出失败，返回状态码：{resultCode} 信息：{resultInfo}')
         returnData = {
             'result': 'failed',
             'resultCode': resultCode,

@@ -6,8 +6,8 @@ import time
 import ESurfingPy
 import psutil as p
 
-prints = lambda text: print('\r[{}] {}\t'.format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), text), end='  ')
-printWithTime = lambda text: print('[{}] {}'.format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()), text))
+prints = lambda text: print(f'\r[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}] {text}\t', end='  ')
+printWithTime = lambda text: print(f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}] {text}')
 
 
 def get_speed(t_type):
@@ -48,7 +48,7 @@ def speed_mode(mode, value, autostop, esrfingurl, wlanacip, wlanuserip, account,
     if firstlogin['result'] == 'succeed':
         signature = firstlogin['signature']
     else:
-        printWithTime('登录失败：{}'.format(firstlogin))
+        printWithTime(f'登录失败：{firstlogin}')
         return
 
     lowtimes = 0  # 低速次数
@@ -59,13 +59,13 @@ def speed_mode(mode, value, autostop, esrfingurl, wlanacip, wlanuserip, account,
         speed = get_speed(typestr)
         nowtraffic = round((get_traffic() - logtraffic) / 1024 / 1024, 2)
         prints(
-            '本次流量：{} MB  {}速度：{} MB/s  低速触发：{}/10  完成触发：{}/10'.format(nowtraffic, typestr, speed, lowtimes, seemdone))
+            f'本次流量：{nowtraffic} MB  {typestr}速度：{speed} MB/s  低速触发：{lowtimes}/10  完成触发：{seemdone}/10')
         if autostop:
             if speed <= 0.1:  # 速率低于 0.1 MB/s ，判定疑似传输完成
                 seemdone += 1
                 if seemdone == 11:
                     print()
-                    printWithTime('检测到连续 10s {}速率低于 0.1 MB/s，已自动停止'.format(typestr))
+                    printWithTime(f'检测到连续 10s {typestr}速率低于 0.1 MB/s，已自动停止')
                     return
                 continue
             else:
@@ -74,13 +74,13 @@ def speed_mode(mode, value, autostop, esrfingurl, wlanacip, wlanuserip, account,
             lowtimes += 1
             if lowtimes == 11:
                 print()
-                printWithTime('检测到连续 10s {}速率低于 {} MB/s，疑似被限速，重新登录中……'.format(typestr, value))
+                printWithTime(f'检测到连续 10s {typestr}速率低于 {value} MB/s，疑似被限速，重新登录中……')
                 ESurfingPy.logout(esrfingurl, wlanacip, wlanuserip, account, password, signature, details, debug)
                 loginresult = ESurfingPy.login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug)
                 if firstlogin['result'] == 'succeed':
                     signature = loginresult['signature']
                 else:
-                    printWithTime('登录失败：{}'.format(firstlogin))
+                    printWithTime(f'登录失败：{firstlogin}')
                     return
 
                 # 重置
@@ -114,14 +114,14 @@ def traffic_mode(mode, value, esrfingurl, wlanacip, wlanuserip, account, passwor
     if firstlogin['result'] == 'succeed':
         signature = firstlogin['signature']
     else:
-        printWithTime('登录失败：{}'.format(firstlogin))
+        printWithTime(f'登录失败：{firstlogin}')
         return
 
     logtraffic = get_traffic()
     while True:
         delta = round((get_traffic() - logtraffic) / 1024 / 1024, 2)
         speed = get_speed(typestr)
-        prints('{}速率：{} MB/s  流量触发：{}/{} MB'.format(typestr, speed, delta, value))
+        prints(f'{typestr}速率：{speed} MB/s  流量触发：{delta}/{value} MB')
         if delta >= value:
             print()
             printWithTime('重新登录中')
@@ -130,7 +130,7 @@ def traffic_mode(mode, value, esrfingurl, wlanacip, wlanuserip, account, passwor
             if firstlogin['result'] == 'succeed':
                 signature = loginresult['signature']
             else:
-                printWithTime('登录失败：{}'.format(firstlogin))
+                printWithTime(f'登录失败：{firstlogin}')
                 return
             logtraffic = get_traffic()
 
@@ -143,12 +143,12 @@ def interval_mode(value, esrfingurl, wlanacip, wlanuserip, account, password, de
     if firstlogin['result'] == 'succeed':
         signature = firstlogin['signature']
     else:
-        printWithTime('登录失败：{}'.format(firstlogin))
+        printWithTime(f'登录失败：{firstlogin}')
         return
 
     timecal = 0
     while True:
-        prints('即将于 {}s 后重新登录'.format(value - timecal))
+        prints(f'即将于 {value - timecal}s 后重新登录')
         time.sleep(1)
         if value - timecal == 0:
             print()
@@ -159,7 +159,7 @@ def interval_mode(value, esrfingurl, wlanacip, wlanuserip, account, password, de
             if firstlogin['result'] == 'succeed':
                 signature = loginresult['signature']
             else:
-                printWithTime('登录失败：{}'.format(firstlogin))
+                printWithTime(f'登录失败：{firstlogin}')
                 return
             timecal = 0
         else:
@@ -174,17 +174,17 @@ def manual_mode(esrfingurl, wlanacip, wlanuserip, account, password, details, de
     if firstlogin['result'] == 'succeed':
         signature = firstlogin['signature']
     else:
-        printWithTime('登录失败：{}'.format(firstlogin))
+        printWithTime(f'登录失败：{firstlogin}')
         return
 
     while True:
-        input('[{}] 按回车键以重新登录校园网'.format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())))
+        input(f'[{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}] 按回车键以重新登录校园网')
         ESurfingPy.logout(esrfingurl, wlanacip, wlanuserip, account, password, signature, details, debug)
         loginresult = ESurfingPy.login(esrfingurl, wlanacip, wlanuserip, account, password, details, debug)
         if firstlogin['result'] == 'succeed':
             signature = loginresult['signature']
         else:
-            printWithTime('登录失败：{}'.format(firstlogin))
+            printWithTime(f'登录失败：{firstlogin}')
             return
 
 
@@ -197,16 +197,30 @@ def Relogin(mode, value, autostop, esrfingurl, wlanacip, wlanuserip, account, si
     5. 间隔指定时间
     6. 手动模式
     """
-    if mode not in ['1', '2', '3', '4', '5', '6']:
-        print('请选择正确的触发模式。')
-        return
-    else:
-        if mode != '6':
-            try:
-                value = float(value)
-            except:
-                print('请输入正确的触发值。')
-                return
+    while True:
+        if mode not in ['1', '2', '3', '4', '5', '6']:
+            print('触发模式：\n'
+                  '1. 上传速率低于指定值\n'
+                  '2. 下载速率低于指定值\n'
+                  '3. 上传流量达到指定值\n'
+                  '4. 下载流量达到指定值\n'
+                  '5. 间隔指定时间\n'
+                  '6. 手动模式')
+            mode = input('请选择正确的触发模式：')
+            if mode in ['1', '2', '3', '4', '5', '6']:
+                break
+            else:
+                continue
+        else:
+            if mode != '6':
+                while True:
+                    try:
+                        value = float(value)
+                        break
+                    except:
+                        value = input('请输入正确的触发值（单位：MB/s, MB, s）：')
+                        continue
+
     if mode in ['1', '2']:
         speed_mode(mode, value, autostop, esrfingurl, wlanacip, wlanuserip, account, signature, details, debug)
     elif mode in ['3', '4']:
@@ -215,4 +229,5 @@ def Relogin(mode, value, autostop, esrfingurl, wlanacip, wlanuserip, account, si
         interval_mode(value, esrfingurl, wlanacip, wlanuserip, account, signature, details, debug)
     elif mode == '6':
         manual_mode(esrfingurl, wlanacip, wlanuserip, account, signature, details, debug)
+
     return
